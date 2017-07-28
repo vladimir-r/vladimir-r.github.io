@@ -1,0 +1,87 @@
+.rouse{
+	width: 200px;
+	height: 200px;
+	background-image:url(http://cdn.fishki.net/upload/post/201412/21/1358869/5_filename.jpg);
+	background-size:cover;
+	position:absolute;
+	left:-200px;
+	top:600px;
+	animation-name:rose;
+	animation-delay:2s;animation-duration:2s;
+	/* animation-fill-mode:forwards; */
+	
+	
+}
+
+.block{
+	width: 100px;
+	height: 100px;
+	background:red;
+	position:absolute;
+	top:0;
+	left:0;
+	transform:rotate(0deg);
+	border-radius:0;
+	animation-name:pocemon;
+	animation-duration:4s;
+	/* animation-timing-function:linear; */
+	animation-timing-function:cubic-bezier(0.25, 0.04, 0.67, 1.44);
+	animation-iteration-count:infinite;
+}
+.blue{
+width: 100px;
+	height: 100px;
+	background:blue;
+	position:absolute;
+	top:150px;
+	left:0;
+	animation-name:go;
+	animation-duration:2s;
+	animation-play-state:paused;
+	/*animation-delay:2s;задержка*/
+	 animation-direction:alternate; 
+	animation-iteration-count:infinite;/*количество повторений*/
+}
+
+.blue:hover{
+	animation-play-state:running
+	
+}
+/*-----------animashki--------*/
+@keyframes pocemon{ 
+0%{left:0;background:red;transform:rotate(0deg)}
+25%{
+	transform:rotate(90deg);
+	border-radius:0 0 50% 0;
+}
+50%{ 
+transform:rotate(180deg);
+	border-radius:0 50% 50% 0;
+}
+75%{ 
+transform:rotate(270deg);
+	border-radius:50% 50% 50% 0;
+}
+100%{left:600px;
+background:green;
+transform:rotate(360deg);border-radius:50% }
+
+}
+/*--------go-----*/
+@keyframes go{
+	0{left:0}
+	100%{left:300px}
+	
+	
+}
+/*---rose--*/
+@keyframes rose{
+	0%{left:-200px}
+	50%{left:50%;top:0}
+	100%{left:0;
+	top:0;
+	width:100%;
+	height: 100%;
+	}
+	
+}
