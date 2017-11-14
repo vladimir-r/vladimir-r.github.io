@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="../css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="../css/style.css">
+	
+</head>
+<body>
+ <div class="container">
+<pre class="code"> 
+//Observable
+
+function Observable(){
+	var observers=[]
+	this.sendMassage=function(msg){
+		for(var i=0;len=observers.length;i &lt; len;i++){
+			observers[i].notify(msg)
+		}
+		
+	}
+	this.addObserver=function(observer){
+		observers.push(observer)
+	}
+	
+}
+
+
+
+//[observer]
+function Observer(behavior){
+	this.notify=function(msg){
+		behavior(msg)
+	}
+	
+}
+//========
+var observable=new Observable();
+var obs1= new Observer(function(msg){console.log(msg)});
+var obs2= new Observer(function(msg){alert(msg)});
+observable.addObserver(obs1);
+observable.addObserver(obs2);
+setTimeout(function(){observable.sendMassage('Текущая дата'+new Date())},3000)
+</pre>
+</div>
+</body>
+</html>

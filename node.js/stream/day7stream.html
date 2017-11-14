@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+  <h1>Потоки в NODE JS</h1>
+  <p>Два основных вида потоков</p>
+	<ul> 
+		<li>stream.Readeable-чтение
+		<ul> 
+			<li>из файла: fs.ReadStream</li>
+			<li>...запрос посетителя: server.on('request',...req...)</li>
+		</ul>
+		</li>
+		<li>stream.Writable-запись
+		<ul> 
+			<li>из файла: fs.Writetream</li>
+			<li>...в ответ посетителю: server.on('request',...res...)</li>
+		</ul>
+		</li>
+		<li>Есть другие типы потоков</li>
+	</ul>
+  <pre class="code">
+  var fs=require('fs');
+  
+  //fs.ReadStream наследует от stream.Readeable
+  var stream = new fs.ReadStream(_filename);//вычитать текущий файл
+  stream.on('readable',function(){ 
+	var data=stream.read();
+	console.log(data);
+  });
+  
+  stream.on('end',function(){
+	console.log('THE END')
+  });
+  </pre>
+  <img src="./images/streamReadS.PNG" alt="" >
+<p>А теперь вычитаем большой файл:</p>  
+<pre class="code">
+  var fs=require('fs');
+  
+  //fs.ReadStream наследует от stream.Readeable
+  var stream = new fs.ReadStream("big.html");//вычитать big.html файл
+  stream.on('readable',function(){ 
+	var data=stream.read();
+	console.log(data);
+  });
+  
+  stream.on('end',function(){
+	console.log('THE END')
+  });
+  </pre>
+  <img src="./images/console.PNG" alt="" >
+  <p>Проверим длину частей потоков(она ровна 64kb)</p>
+  <pre class="code">
+  ....
+  stream.on('readable',function(){ 
+	var data=stream.read();
+	console.log(data.length);//длина частей потока
+  });
+  ....
+  </pre>
+    <img src="./images/lengthSream.PNG" alt="" >
+	
+	<p>Специальные события модуля "fs": "open" ---> "close"</p>
+	<img src="./images/fileReadStream.PNG" alt="" >
+	<p>Если файл не дочитан, например вызвали метод "destroy()" событие "end" не сработает , но гарантировано сработает событие "close". </p>
+	
+	<h2>Error </h2>
+	<p>Если мы не хотим "положить" сервер при возникноавении ошибки нужно обрабатывать событие 'error'</p>
+	<img src="./images/error.PNG" alt="" >
+	<pre class="code">
+  ....
+  stream.on('error',function(err){ 
+	if(err.code=='ENOENT')
+	console.log('file not found');
+  }else{
+	console.error(err)
+  }
+  );
+ 
+  </pre>
+  <h1> Writable-запись</h1>
+  <p>Если посетитель запросит следующий url  то отдать ему файл, пример решения этой задачи без потоков будет таким:---> читаем фaйл ---> когда файл прочитается вызываем callback ---> при ошибке сообщаем о ней ---> все хорошо устанавливаем заголовок (mime) и записиваем res.end()  отдаем контент</p>
+  <pre class="code">
+  var http=require('http');
+  var fs=require('fs');
+ 
+ new http.Server(function(req,res){
+ //res instansceof http.ServerResponse (наследует от)-stream.Writable
+ 
+ if(req.url == '/big.html'){
+	fs.readFile('big.html', function(err,content){
+		if(err){
+			res.statusCode = 500;
+			res.end('Server error');
+		}else{
+			res.setHeader('Content-Type','text/html'; 'charset=utf-8');
+			res.end(content)
+		}
+	});
+ }
+ }).listen(3000);
+  </pre>
+  <p> Это решение работает но его проблема пожирание памяти,если файл большой , а "клиент" медленный то весь сонтент зависнет в памяти, а если клиентов много... сервер займет всю доступную память , что не допустимо!</p>
+  <p>Что бы этого не происходило заменим отдачу ответа(файла) на другой код отдачи файла  использующий потоки. </p>
+  
+  <pre class="code">
+  var http=require('http');
+  var fs=require('fs');
+ 
+ new http.Server(function(req,res){
+	if(req.url == '/big.html'){ 
+		var file=new fs.ReadStream('big.html');//это входной поток данных
+	
+	}
+ 
+ }).listen(3000)
+  </pre>
+  <p>Алгоритм потоков записи:</p>
+  <img src="./images/writable.PNG" alt="" style="float:left; width:40%" >
+  <div style="float:left;width:60%">
+  <ul >
+  <li>Создаем обьект потока
+  <ul><li>(если это http server то это обьект res) </li></ul></li>
+  <li>Дальше нужно отправить что то клиенту, <ul>
+  	<li>это можно сделать с помощю  red.write("передаем данные"(данные- это либо буфер, либо строка)</li>
+  </ul></li>
+  <li>Если данные не "большие" то они прибавляются к специальному свойству потока bufer и возвращают true , <ul>
+  	<li>что означае что мы можем писать еще</li>
+  </ul></li>
+  <li>Если мы передали очень много данных или если bufer уже был чем то занят то метод write() вернет false </li>
+  <li>false означает что буфер сейчас переполнен и запись можно сделать но это нецелесообразно , потому , что в буфере все будет копится,копится.... <ul>
+  	<li>(что приведет к обычному вычитываню и записиванию файла)</li>
+  </ul></li>
+  <li>ПО етому при получени false запись не продолжают , а ждут специальнго события "drain" которое будет сгенерировано потоком когдаон все отошлет <ul>
+  	<li> тоесть гогда его внутрений bufer опустеет сгенерируется "drain"</li>
+  </ul></li>
+  <li>Таким образом мы можем вызыват write(chunk) много - много раз пока все данные не будут записаны после этого нужно вызввать метод "end" <ul>
+  	<li>Самая главная задача "end" закончит запись( закончить внутрение операции)</li>
+  </ul></li>
+  
+  <li>Затем генерируется событие "finish" <ul>
+  	<li>Аналогичное событие у Stream.Readable назыается "end"</li>
+  </ul></li>
+  <li>Это различее не случайно, так как существуют потоки duplex котоие умеют и читат и писать. <ul>
+  	<li>Соответственно они умеют генерировать как одно событие так и другое.</li>
+  </ul> </li>
+  <li>Поток в любой момент можно разрушить вызовом метода "destroy()" <ul>
+  	<li>При вызове этого метода работа потока прекращается и все ассоциируемые с ним ресурсы будут освобождены 
+	<ul><li id="g">при этом событие "finish" никогда не состоится, так как "finish" это успешное завершение потока и отдача всех данных.</li></ul>
+	</li>
+  </ul></li>
+  
+  </ul>
+  </div>
+  <div style="clear:both"></div>
+  <p>Реализем правильную отдачу файла:</p>
+  <pre class="code">
+   var http=require('http');
+  var fs=require('fs');
+ 
+ new http.Server(function(req,res){
+	if(req.url == '/big.html'){ 
+		var file=new fs.ReadStream('big.html');//это входной поток данных
+		sendFile(file,res);
+	}
+ 
+ }).listen(3000)
+  
+  function sendFile(file,res){
+	file.on('readable',write);
+	
+	function write(){
+		var fileContent=file.read();//считать
+		if(fileContent && !res.write(fileContent)){//отправить
+		
+		file.removeListener('readable',write);
+		res.once('drain',function(){//подождать
+			file.on('readable',write);
+			write();
+		});
+		}
+	}
+  }
+  file.on('end',function(){
+	res.end();
+  })
+  
+  </pre>
+  <p> Получившийся код достаточно универсальный он реализует алгоритм отправки данных из одного потока в другой(sendFile(file,res)), используя стандартние методы Readable & Writable.</p>
+  <p>Такой метод передачи данных существует в библиотеке и называется file.pipe(res)</p>
+   <pre class="code">
+     var http=require('http');
+  var fs=require('fs');
+ 
+ new http.Server(function(req,res){
+	if(req.url == '/big.html'){ 
+		var file=new fs.ReadStream('big.html');//это входной поток данных
+		sendFile(file,res);
+	}
+ 
+ }).listen(3000);
+ 
+ function sendFile(file,res){
+	file.pipe(res)// "Readable".pipe("Writable")
+	//при помощи метода pipe() можно писать один входной поток в несколько выходных
+		file.pipe(process.stdout)// кроме ответа клиенту вывод производим в стандартый вывод процеса
+ }
+   
+  </pre>
+  <p>В даном коде нет обработчика ошибок и если произойдет ошиба упадет весь сервер!!</p>
+   <pre class="code">
+   var http=require('http');
+  var fs=require('fs');
+ 
+ new http.Server(function(req,res){
+	if(req.url == '/big.html'){ 
+		var file=new fs.ReadStream('big.html');//это входной поток данных
+		sendFile(file,res);
+	}
+ 
+ }).listen(3000);
+ 
+ function sendFile(file,res){
+	file.pipe(res);
+	
+	file.on('error',function(){
+		res.statusCode=500;
+		res.end('Server Errror');
+		console.log(err)
+	});
+	
+ }
+  </pre>
+  <p>В ряде руководств такой код является окончательным но ставиь его на реальный сервер ни в коем случае нельзя.</p>
+  <p>Если клиент открыл соединение но закрыл его до того как закончилась запись (загрузка файла била завершена), топ получается, что файл останется подвисшим и все ассоциируемые с ним структуры останутся в памяти, также у операционных систем существует лимит на количество открытых файлов, а в третих  вместе с файлом навечно зависает в памяти исоответствующий обьект потока и все замыкание в котором он находится.</p>
+  <p>Что бы это исправить нам нужно отслеживать событие "res.on('close')"</p>
+   <pre class="code">
+    var http=require('http');
+  var fs=require('fs');
+ 
+ new http.Server(function(req,res){
+	if(req.url == '/big.html'){ 
+		var file=new fs.ReadStream('big.html');//это входной поток данных
+		sendFile(file,res);
+	}
+ 
+ }).listen(3000);
+ 
+ function sendFile(file,res){
+	file.pipe(res);
+	
+	file.on('error',function(){
+		res.statusCode=500;
+		res.end('Server Errror');
+		console.log(err)
+	});
+	/*
+	file.on('open',function(){
+			console.log('open');
+	}).on('close',function(){
+			console.log('close');
+	});
+	*/
+	res.on('close',function(){// сигнал что соединение было оборвано
+		file.destroy();// вызываем метод, соответсвенно файл будет закрыт 
+	});
+		
+ }
+   </pre>
+  <p>Теперь наш код можно пускать на жывой сервер!!!</p>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

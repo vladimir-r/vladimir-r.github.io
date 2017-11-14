@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+ <div class="container">
+	<h1>События в Node.js</h1>
+	<p>Node.js сильно использует события, и это также одна из причин, почему Node.js довольно быстро по сравнению с другими подобными технологиями. Как только Node запускает свой сервер, он просто инициирует свои переменные, объявляет функции, а затем просто ждет события.</p>
+
+<p>В приложении, управляемом событиями, обычно существует основной цикл, который прослушивает события, а затем запускает функцию обратного вызова при обнаружении одного из этих событий.</p>
+	<img src="https://cdn-images-1.medium.com/max/1600/1*oS1Leve6SdrXtv9YAyH_-g.jpeg" alt="">
+	
+<p>Node.js - однопоточное приложение, но оно может поддерживать параллелизм через концепцию событий и обратных вызовов . Каждый API-интерфейс Node.js является асинхронным и однопоточным, он использует асинхронные вызовы функций для поддержания параллелизма. Узел использует шаблон наблюдателя. Нить узла поддерживает цикл событий, и всякий раз, когда задача завершается, он запускает соответствующее событие, которое сигнализирует о выполнении функции event-listener.</p>
+<p>Каждое действие на компьютере - это событие. Например, когда соединение выполняется или файл открывается.</p>
+<p>Объекты в Node.js могут запускать события, например, объект readStream запускает события при открытии и закрытии файла:</p>
+	<pre class="code">
+	var fs = require('fs');
+var rs = fs.createReadStream('./demofile.txt');
+rs.on('open', function () {
+  console.log('The file is open');
+});
+	</pre>
+	
+	<h2></h2>
+	<p></p>
+	<pre class="code"></pre>
+	
+	<h2>Модуль событий</h2>
+	
+	<p>Хотя события выглядят очень похожими на обратные вызовы, разница заключается в том, что функции обратного вызова вызывают, когда асинхронная функция возвращает свой результат, тогда как обработка событий работает по шаблону наблюдателя. Функции, которые слушают события, действуют как наблюдатели . Всякий раз, когда событие срабатывает, его функция-слушатель начинает выполнение. Node.js имеет несколько встроенных событий, доступных через модуль событий и класс EventEmitter, которые используются для привязки событий и событий-слушателей следующим образом:</p>
+	<p>У Node.js есть встроенный модуль, называемый «События», где вы можете создавать, запускать и слушать собственные события.</p>
+
+<p>Чтобы включить встроенный модуль Events, используйте этот require() метод. Кроме того, все свойства и методы событий являются экземпляром объекта EventEmitter. Чтобы иметь доступ к этим свойствам и методам, создайте объект EventEmitter:</p>
+	<pre class="code">
+	var events = require('events');
+var eventEmitter = new events.EventEmitter();
+	</pre>
+	
+	<h2>Объект EventEmitter</h2>
+	
+	
+	<i>пример</i>
+<p>Создайте файл js с именем main.js со следующим кодом -</p>
+<pre class="code">
+// Import events module
+var events = require('events');
+
+
+// Create an eventEmitter object
+var eventEmitter = new events.EventEmitter();
+
+// Create an event handler as follows
+var connectHandler = function connected() {
+   console.log('connection succesful.');
+  
+   // Fire the data_received event 
+   eventEmitter.emit('data_received');
+}
+
+// Bind the connection event with the handler
+eventEmitter.on('connection', connectHandler);
+ 
+// Bind the data_received event with the anonymous function
+eventEmitter.on('data_received', function(){
+   console.log('data received succesfully.');
+});
+
+// Fire the connection event 
+eventEmitter.emit('connection');
+
+console.log("Program Ended.");
+</pre>
+<p>Теперь попробуем запустить вышеуказанную программу и проверить ее выход -</p>
+
+<pre class="code"> $ node main.js</pre>
+ИТ должен дать следующий результат:
+<pre class="code">
+connection successful.
+data received successfully.
+Program Ended.
+	</pre>
+	
+	
+	<h2>Свои события</h2>
+	<p>Вы можете назначить обработчики событий своим событиям с помощью объекта EventEmitter.
+
+В приведенном ниже примере мы создали функцию, которая будет выполняться при запуске события «scream».
+
+Чтобы запустить событие, используйте этот emit()метод.</p>
+	<pre class="code"> 
+	var events = require('events');
+var eventEmitter = new events.EventEmitter();
+
+//Create an event handler:
+var myEventHandler = function () {
+  console.log('I hear a scream!');
+}
+
+//Assign the event handler to an event:
+eventEmitter.on('scream', myEventHandler);
+
+//Fire the 'scream' event:
+eventEmitter.emit('scream');
+	
+	</pre>
+	
+	<img src="https://image.slidesharecdn.com/02-eventemitter-140721230507-phpapp02/95/nodejs-event-emitter-2-638.jpg?cb=1405984260" alt="">
+	<a href="https://www.slideshare.net/EyalV/event-emitter"></a>
+	<pre class="code"> 
+		const event=require('events');
+		const e=event();
+		
+		console.log('Start');
+		process.nextTick(()=>{console.log('nextTick')})
+		setTimeout(()=>{console.log('setTimeout')},0)
+		setImmediate(()=>{console.log('setImmediate')})
+		
+		e.on('event-1',()=>{console.log('event-1')});
+		e.on('event-2',()=>{console.log('event-2')});
+		e.on('event-3',()=>{console.log('event-3')});
+		
+		e.emit('event-1');
+		e.emit('event-2');
+		e.emit('event-3');
+		console.log('End');
+		
+	
+	
+	</pre>
+	
+	<hr> 
+	
+	
+	
+	
+    </div>
+</body>
+</html>

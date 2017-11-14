@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Node.js</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/materialize.min.css" media="screen,projection">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+<div class="container">
+    <h1>начало работы с MongoDB</h1>
+    <p>Перед работой с базой данных необходимо осуществить подключение к ней. В зависимости от размещения базы данных
+        способы подключения к ней могут отличаться. В большинстве случаев в документации размещена информация о способах
+        подключения к базе.</p>
+    <p>Работа с базой данных осуществляется через консоль. </p>
+    <p>Теперь поизведем какие-либо простейшие действия. Введем в mongo последовательно следующие команды и после каждой
+        команды нажмем на Enter:</p>
+    <pre class="code">
+    use test
+    db.users.save( { name: "Tom" } )
+    db.users.find()
+</pre>
+    <p> Первая команда use test устанавливает в качестве используемой базу данных test. Даже если такой бд нет, то она
+        создается автоматически. И далее db будет представлять текущую базу данных - то есть базу данных test. После db
+        идет users - это коллекция, в которую затем мы добавляем новый объект. Если в SQL нам надо создавать таблицы
+        заранее, то коллекции MongoDB создает самостоятельно при их отсутствии.</p>
+
+    <p>С помощью метода db.users.save() в коллекцию users базы данных test добавляется объект { name: "Tom" }. Описание
+        добавляемого объекта определяется в формате, с которым вы возможно знакомы, если имели дело с форматом JSON. То
+        есть в данном случае у объекта определен один ключ "name", которому сопоставляется значение "Tom". То есть мы
+        добавляем пользователя с именем Tom.</p>
+
+    <p>Если объект был успешно добавлен, то консоль выведет результа в виде выражения WriteResult({ "nInserted" : 1
+        }).</p>
+
+    <p>А третья команда db.users.find() выводит на экран все объекты из бд test.</p>
+    <img src="images/mongo/day_2_1.png" alt="" class="responsive-img">
+    <p>Из вывода вы можете увидеть, что к начальным значениям объекта было добавлено какое-то непонятно поле ObjectId.
+        Как вы помните, MongoDB в качестве уникальных идентификаторов документа использует поле _id. И в данном случае
+        ObjectId как раз и представляет значение для идентификатора _id.</p>
+</div>
+
+
+<!--Import jQuery before materialize.js-->
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

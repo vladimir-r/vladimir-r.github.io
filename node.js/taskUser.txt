@@ -1,0 +1,24 @@
+http://expressjs.com/ru/guide/using-middleware.html
+
+воспользуйтесь ѕромежуточными обработчиками 
+
+создайте JSON с обьектами user =
+
+"id":{name:'vasa',
+contact:444-444-44,
+age:25,
+img:vasa.jpg
+}
+....
+
+"id":{name:'peta',
+contact:555-555-55,
+age:35,
+img:peta.jpg
+}
+
+в зависимости от введенного запроса user/:id выводите персональную страничку пользовател€ использу€ шаблон jade (include header, include footer),
+мен€йте только содержимое в виде данных usera .
+
+
+подсказка https://metanit.com/web/nodejs/4.10.php

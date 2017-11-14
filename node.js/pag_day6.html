@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day6</h1>
+    <h2>Pug</h2>
+<p>Для установки Pug выполните следующие шаги:</p>
+<ul>
+  <li>Установить nodejs.</li>
+  <li>Запустить командную строку.</li>
+  <li>Выполнить команду npm install pug</li>
+  <li>Выполнить команду (для последней версии node.js) npm install pug-cli -g</li>
+</ul>
+<p>Для конвертации pug файла выполните команду:</p>
+<pre class="code">
+pug -w filename.pug</pre>
+<p>Это создаст файл filename.html. При этом pug будет запущен в режиме watch, в котором он в режиме реального времени отслеживает изменения внутри pug файла.</p>
+<p>Для получения справки введите pug --help.</p>
+<p>Pug (бывший Jade) — это препроцессор HTML и шаблонизатор, который был написан на JavaScript для Node.js. Проще говоря, Jade — это именно то средство, которое предоставляет вам возможность написания разметки совершенно по новому, с целым рядом преимуществ по сравнению с обычным HTML. </p>
+<p>Пример:</p>
+<pre class="code">
+  &#x3C;div&#x3E;
+  &#x3C;h1&#x3E;Ocean&#x27;s Eleven&#x3C;/h1&#x3E;
+  &#x3C;ul&#x3E;
+    &#x3C;li&#x3E;Comedy&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;Thriller&#x3C;/li&#x3E;
+  &#x3C;/ul&#x3E;
+  &#x3C;p&#x3E;Danny Ocean and his eleven accomplices plan to rob
+     three Las Vegas casinos simultaneously.&#x3C;/p&#x3E;
+&#x3C;/div&#x3E;</pre>
+<p>Подобная верстка в Pug выглядит: </p>
+<pre class="code">
+  div
+  h1 Ocean's Eleven
+  ul
+    li Comedy
+    li Thriller
+  p.
+    Danny Ocean and his eleven accomplices plan to rob
+    three Las Vegas casinos simultaneously.</pre>
+<p>Второй вариант кажется более коротким и элегантным. Но Pug — это не только симпатичная разметка. Jade имеет некоторые действительно полезные функции, позволяющие писать модульный многоразовый (с возможностью многоразового использования) код. Но перед тем, как углубиться, давайте сделаем обзор основ.
+</p>
+<h3>Теги</h3>
+<p>Как вы могли заметить ранее, в Pug нет закрывающих тегов. Вместо этого Pug использует табуляцию для определения вложености тегов.</p>
+<pre class="code">
+  div
+    p Hello!
+    p World!
+</pre>
+<p>В приведенном выше примере, теги параграфов согласно их табуляции при компиляции в конечном итоге окажутся внутри тега div. Как просто!</p>
+<p>Pug компилирует это точно, рассматривая первое слово в каждой строке в качестве тега, в то время как последующие слова на этой строке обрабатываются как текст внутри тега.</p>
+<h3>Атрибуты</h3>
+<p>Всё это, конечно, хорошо, но как добавлять атрибуты нашим тегам? На самом деле довольно просто.
+Давайте вернёмся к нашему первому примеру и добавим туда пару классов и некую картинку-постер.</p>
+<pre class="code">
+  div(class="movie-card", id="oceans-11")
+  h1(class="movie-title") Ocean's 11
+  img(src="/img/oceans-11.png", class="movie-poster")
+  ul(class="genre-list")
+    li Comedy
+    li Thriller
+</pre>
+<p>Результат компиляции</p>
+<pre class="code">
+  &#x3C;div class=&#x22;movie-card&#x22; id=&#x22;oceans-11&#x22;&#x3E;
+  &#x3C;h1 class=&#x22;movie-title&#x22;&#x3E;Ocean&#x27;s 11&#x3C;/h1&#x3E;
+  &#x3C;img src=&#x22;/img/oceans-11.png&#x22; class=&#x22;movie-poster&#x22;&#x3E;
+  &#x3C;ul class=&#x22;genre-list&#x22;&#x3E;
+    &#x3C;li&#x3E;Comedy&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;Thriller&#x3C;/li&#x3E;
+  &#x3C;/ul&#x3E;
+&#x3C;/div&#x3E;
+</pre>
+<p>Pug предоставляет специальную стенографию для индификаторов и классов, что ещё больше упрощает нашу разметку, используя знакомые всем обозначения:</p>
+<p>
+  div.movie-card#oceans-11
+  h1.movie-title Ocean's 11
+  img.movie-poster(src="/img/oceans-11.png")
+  ul.genre-list
+    li Comedy
+    li Thriller
+</p>
+<p>Как вы можете заметить, Jade использует синтаксис анологичный тому, который вы используете при написании CSS-селекторов. </p>
+<h3>Блоки текста</h3>
+<p>Давайте представим такую ситуацию: у вас есть тег <р> и вы хотите добавить в него довольно таки большой объём текста. Но стоп, ведь Pug рассматривает первое слово каждой строки как новый HTML-тег — и как тут быть?</p>
+<p>В самом первом примере вы уже могли заметить невзрачную точку после тега параграфа. Добавление точки после вашего тега даёт понять компилятору Pug, что всё внутри данного тега является текстом.</p>
+<pre class="code">
+  div
+  p How are you?
+  p.
+    I'm fine thank you.
+    And you? I heard you fell into a lake?
+    That's rather unfortunate. I hate it when my shoes get wet.
+</pre>
+<h3>JavaScript в Jade</h3>
+<p>Jade реализован на JavaScript, по этому использовать JavaScript в Jade довольно просто. Вот пример:</p>
+<pre class="code">
+  - var x = 5;
+div
+  ul
+    - for (var i=1; i<=x; i++) {
+      li Hello
+    - }
+</pre>
+<p>Что же мы тут сделали?! Начав строку с дефиса, мы указали компилятору Jade, что мыхотим использовать JavaScript, и всё, оно работает! И вот что мы получим, когда скомпилируем этот код в HTML:</p>
+<pre class="code">
+  &#x3C;div&#x3E;
+  &#x3C;ul&#x3E;
+    &#x3C;li&#x3E;Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;Hello&#x3C;/li&#x3E;
+  &#x3C;/ul&#x3E;
+&#x3C;/div&#x3E;
+</pre>
+<p>Мы используем дефис, когда код не должен напрямую попадать в поток вывода. В случае, ежели мы хотим использовать JavaScript для вывода чего-либо в Jade, мы используем =. Давайте подправим код выше, чтобы указать нумерацию элементов в списке:</p>
+<pre class="code">
+  - var x = 5;
+div
+  ul
+    - for (var i=1; i<=x; i++) {
+      li= i + ". Hello"
+    - }
+</pre>
+<p>И вуаля, у нас имеется нумерация:</p>
+<pre class="code">
+  &#x3C;div&#x3E;
+  &#x3C;ul&#x3E;
+    &#x3C;li&#x3E;1. Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;2. Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;3. Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;4. Hello&#x3C;/li&#x3E;
+    &#x3C;li&#x3E;5. Hello&#x3C;/li&#x3E;
+  &#x3C;/ul&#x3E;
+&#x3C;/div&#x3E;
+</pre>
+<h3>Циклы и массивы</h3>
+<p>Jade использует прекрасный синтаксис для написания циклов, так что вам не придётся прибегать к JavaScript. Давайте пройдёмся по элементам массива в цикле:</p>
+<pre class="code">
+  - var droids = ["R2D2", "C3PO", "BB8"];
+div
+  h1 Famous Droids from Star Wars
+  for name in droids
+    div.card
+      h2= name
+</pre>
+<p>И это будет скомпилировано следующим образом:</p>
+<pre class="code">
+  &#x3C;div&#x3E;
+  &#x3C;h1&#x3E;Famous Droids from Star Wars&#x3C;/h1&#x3E;
+  &#x3C;div class=&#x22;card&#x22;&#x3E;
+    &#x3C;h2&#x3E;R2D2&#x3C;/h2&#x3E;
+  &#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;card&#x22;&#x3E;
+    &#x3C;h2&#x3E;C3PO&#x3C;/h2&#x3E;
+  &#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;card&#x22;&#x3E;
+    &#x3C;h2&#x3E;BB8&#x3C;/h2&#x3E;
+  &#x3C;/div&#x3E;
+&#x3C;/div&#x3E;
+</pre>
+<h3>Шаблоны</h3>
+<p></p>
+
+<h4>Дополнительные материалы</h4>
+<ul class="browser-default">
+  <li><a href="https://metanit.com/web/nodejs/2.1.php">Основы работы с Node.js Модули</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.2.php">Работа с модулями</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.3.php">Объект global и глобальные переменные</a></li>
+</ul>
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

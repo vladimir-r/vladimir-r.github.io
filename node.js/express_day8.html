@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day 8</h1>
+    <h2>Express. Установка</h2>
+<p>Первым шагом будет установка Express. Выполните следующую команду npm:</p>
+<pre class="code">
+npm install --save express</pre>
+<p>Выполнение npm install установит указанный (-ые) пакет (-ы) в каталог node_ modules. Если вы укажете флаг --save, файл package.json будет обновлен. Поскольку каталог node_modules в любой момент может быть восстановлен с помощью npm, мы не станем сохранять его в нашем репозитории. Чтобы убедиться, что мы не добавили его случайно в репозиторий, создадим файл с именем .gitignore:</p>
+<pre class="code">
+# Игнорировать установленные npm пакеты:
+node_modules
+# Поместите сюда любые другие файлы, которые вы не
+# хотите вносить,такие как .DS_Store (OSX), *.bak, etc.</pre>
+<p>Создадим файл app.js, который будет точкой входа в наш проект. Запишем в него код:</p>
+<pre class="code">
+  var express = require('express');
+var app = express();
+app.set('port', process.env.PORT || 3000);
+// пользовательская страница 404
+app.use(function(req, res){
+        res.type('text/plain');
+        res.status(404);
+        res.send('404 — Не найдено');
+});
+// пользовательская страница 500
+app.use(function(err, req, res, next){
+        console.error(err.stack);
+        res.type('text/plain');
+        res.status(500);
+        res.send('500 — Ошибка сервера');
+});
+app.listen(app.get('port'), function(){
+    console.log( 'Express запущен на http://localhost:' +
+      app.get('port') + '; нажмите Ctrl+C для завершения.' );
+});
+</pre>
+<p>Теперь у вас есть минимальный сервер Express. Можете запустить сервер (node app.js) и перейти на http://localhost:3000. Результат будет неутешительным: вы не предоставили Express никаких маршрутов, так что он просто выдаст вам обобщенную страницу 404, указывающую, что запрошенной страницы не существует.</p>
+<h3>Добавляем маршруты</h3>
+<p>Добавим маршруты для домашней страницы и страницы about Перед обработчиком 404 добавляем два новых маршрута:</p>
+<pre class="code">
+  app.get('/', function(req, res){
+        res.type('text/plain');
+        res.send('Main page');
+});
+app.get('/about', function(req, res){
+        res.type('text/plain');
+        res.send('About page');
+});
+// пользовательская страница 404
+app.use(function(req, res, next){
+        res.type('text/plain');
+        res.status(404);
+        res.send('404 — Не найдено);
+       });
+</pre>
+<p>app.get — метод, с помощью которого мы добавляем маршруты. Этот метод принимает два параметра: путь и функцию.
+Путь — то, что определяет маршрут. Заметьте, что app.get по умолчанию игнорирует регистр и косую черту в конце строки, а также не принимает во внимание строку запроса при выполнении сравнения. Так что маршрут для страницы about будет работать для /about, /About, /about/, /about?foo=bar, /about/?foo=bar и т. п.</p>
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

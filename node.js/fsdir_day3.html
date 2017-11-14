@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day3</h1>
+   <h2>Создание и удаление директории</h2>
+<p>Для создания директории используем модуль fs со следующим кодом:</p>
+<pre class="code">
+  var fs = require('fs');
+  fs.mkdir('mmm2/',function(e){
+    if(e && e.code === 'EEXIST'){
+        //do something with contents
+        console.log(e);
+    } else {
+       console.log('well done');
+    }
+});</pre>
+<p>Для удаления директории</p>
+<pre class="code">
+  var fs = require('fs');
+  fs.rmdir('mmm2',function(e){
+    if(e){
+        console.log('Error');
+    } else {
+        console.log('remove');
+    }
+});</pre>
+<h3>Чтение содержимого каталога</h3>
+<p>Если необходимо вычитать содержимое каталога, то используем код:</p>
+<pre class="code">
+var fs = require('fs');
+fs.readdir('.', (err, files) => {
+  files.forEach(file => {
+    console.log(file);
+  });
+})</pre>
+
+<a href="task3.html#task6">Задача6</a>
+<hr> 
+<h4>Дополнительные материалы</h4>
+<ul class="browser-default">
+  <li><a href="https://metanit.com/web/nodejs/2.1.php">Основы работы с Node.js Модули</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.2.php">Работа с модулями</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.3.php">Объект global и глобальные переменные</a></li>
+</ul>
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

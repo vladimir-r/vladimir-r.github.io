@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day4</h1>
+    <h2>Создание сервера</h2>
+<p>Для работы с сервером и протоколом http в Node.js используется модуль <a href="https://nodejs.org/api/http.htm">http</a>.</p>
+<p>Чтобы создать сервер, следует вызвать метод http.createServer():</p>
+<pre class="code">
+var http = require("http");
+http.createServer().listen(3000);</pre>
+<p>Метод createServer() возвращает объект http.Server. Но чтобы сервер мог прослушивать и обрабатывать входящие подключения, у объекта сервера необходимо вызвать метод listen(), в который в качестве параметра передается номер порта, по которому запускается сервер.</p>
+
+<p>Для обработки подключений в метод createServer можно передать специальную функцию:</p>
+<pre class="code">
+  var http = require("http");
+  http.createServer(function(request, response){
+     response.end("Hello world!");
+  }).listen(3000);
+  //Вывод мы получим уже не в консоль, а при запуске в браузере по порту localhost:3000
+</pre>
+<p>Эта функция принимает два параметра:</p>
+<ul class="browser-default">
+  <li>request: хранит информацию о запросе</li>
+  <li>response: управляет отправкой ответа</li>
+</ul>
+<a href="proxyport.html">Что такое порт сервера.</a>
+<h3>Request</h3>
+<p>Параметр request позволяет получить информацию о запросе и представляет объект http.IncomingMessage. Отметим некоторые основные свойства этого объекта:</p>
+<ul>
+  <li>headers: возвращает заголовки запроса</li>
+  <li>method: тип запроса (GET, POST, DELETE, PUT)</li>
+  <li>url: представляет запрошенный адрес</li>
+</ul>
+<p>Например, определим следующий файл app.js:</p>
+<pre class="code">
+var http = require("http");
+http.createServer(function(request, response){  
+  console.log("Url: " + request.url);
+  console.log("Тип запроса: " + request.method);
+  console.log("User-Agent: " + request.headers["user-agent"]);
+  console.log("Все заголовки");
+  console.log(request.headers);
+  response.end();
+}).listen(3000);
+</pre>
+<p>Запустим его и обратимся в браузере по адресу <a href="http://localhost:3000/index.html">http://localhost:3000/index.html</a> - если все сделано правильно, то в консоли вы увидите вывод указанных выше команд.</p>
+<img src="images/day4/01.png" alt="" class="responsive-img">
+<h3>Response</h3>
+
+<p>Параметр response управляет отправкой ответа и представляет объект http.ServerResponse. Среди его функциональности можно выделить следующие методы:</p>
+<ul class="browser-default">
+  <li>statusCode: устанавливает статусный код ответа</li>
+  <li>statusMessage: устанавливает сообщение, отправляемое вместе со статусным кодом</li>
+  <li>setHeader(name, value): добавляет в ответ один заголовок</li>
+  <li>write: пишет в поток ответа некоторое содержимое</li>
+  <li>writeHead: добавляет в ответ статусный код и набор заголовков</li>
+</ul>
+<p>Например, изменим файл app.js следующим образом:</p>
+<pre class="code">
+var http = require("http");
+http.createServer(function(request, response){
+    response.setHeader("UserId", 12);
+    response.setHeader("Content-Type", "text/html");
+    response.write(&#x22;&#x3C;h2&#x3E;hello world&#x3C;/h2&#x3E;&#x22;);
+    response.end();
+}).listen(3000);
+</pre>
+<p>Запустим файл и обратимся в браузере к приложению. Если страница вывела сообщение "hello world", то вы все сделали правильно.</p>
+<p>К сожалению, созданный сервер может на все запросы отвечать только одной строкой. Давайте научим его различать наши запросы.</p>
+<h2>Сервер и html файлы</h2>
+<p>Для того, чтобы прочитать файл нам понадобится доступ к файловой системе, который можно получить, подключив модуль fs. Так что давайте подключим его и используем метод readFile.</p>
+<pre class="code">
+'use strict';
+let http = require('http'),
+fs   = require('fs');
+http.createServer(function(request, response) {
+  fs.readFile('index.html', { encoding: 'utf8' }, function(error, file) {
+    });
+}).listen(3000);</pre>
+<p>Приведенный выше код должен быть вполне понятен, но давайте рассмотрим его подробнее. Метод readFile асинхронный, то есть после завершения чтения файла (или получения ошибки) будет получен доступ к функции обратного вызова (callback). Мы также можем указать кодировку, в которой будет возвращаться содержимое файла. В нашем случае — это utf-8.</p>
+<p>Теперь, когда мы прочитали наш HTML-файл, я предполагаю, что мы должны ответить на запрос его содержимым. Это делается с помощью объекта respond и нескольких его методов.</p>
+<p>Первый метод writeHead. Он принимает два аргумента: код статуса сервера и объект, содержащий тип контента (среди прочего).</p>
+<pre class="code">response.writeHead(200, { 'Content-Type': 'text/html' });</pre>
+<p>Следующий метод write, где мы пишем контент или, в нашем случае, HTML-файл:</p>
+<pre class="code">response.write(file);</pre>
+<p>Наконец, мы должны завершить наш ответ, используя метод end. Все вместе с остальным кодом будет выглядеть так:</p>
+<pre class="code">
+var http = require('http');
+var fs   = require('fs');
+
+http.createServer(function(request, response) {
+    fs.readFile('index.html', { encoding: 'utf8' }, function(error, file) {
+        if (!error) {
+            response.writeHead(200, { 'Content-Type': 'text/html'});
+            response.write(file);
+            response.end();
+        }
+    });
+}).listen(3000);
+</pre>
+<p>Итак, мы получили возможность построить простой роутер для сервера.</p>
+<a href="task4.html">Задача1</a>
+<hr>
+<h2>Простой роутер</h2>
+<p>Давайте попробуем решить простую задачу: пользователь вводит url адреса, а сервер загружает ему нужные страницы. Для начала ограничимся простой задачей - на сервере есть две страницы one.html и two.html с любым содержимым. Если пользователь вводит адрес /one или /two - то пользователю загружается соответственно страницы one.html и two.html. Если пользователь вводит любой другой адрест - то генерируется (именно генерируется) страница 404.</p>
+<p>Разобьем задачу на составляющие - для начала, мы знаем что url адрес, который вводит пользователь можно получить из объека request</p>
+<pre class="code">var url = request.url;</pre>
+<p>Этот url выглядит следующим образом: "/one". Наша задача - сравнить данный адрес с имеющимися и загрузить нужный файл. Поскольку задача загрузки будет повторяться очень часто, то удобно вынести процедуру загрузки файла в отдельную функцию или метод.</p>
+<pre class="code">
+var http = require('http');
+var fs   = require('fs');
+http.createServer(function(request, response) {
+//Ф-я загрузки содержимого из файла
+  function routeLoad(path) {
+    fs.readFile(path, { encoding: 'utf8' }, function(error, file) {
+      if (!error) {
+        response.writeHead(200, { 'Content-Type': 'text/html'});
+        response.write(file);
+        response.end();
+      }
+    });
+  }
+  var url = request.url;
+       if (url=='/one') routeLoad('one.html');
+  else if (url=='/two') routeLoad('two.html');
+  else {
+    response.setHeader("Content-Type", "text/html");
+    response.write("&#x3C;h2&#x3E;404&#x3C;/h2&#x3E;");
+    response.end();
+  }
+}).listen(3000);</pre>
+<p>Итак, мы сделали роутер и получили возможность загружать разные страницы при разных введенных адресах, т.е. заложили основу будущего сайта. Давайте внесем изменения в файлы и добавим в файл one.html и two.html ссылки на изображения. Создайте папку, поместите в нее изображения и добавьте их на страницу. Тажке, добавьте в страницу изображение с сети Интернет напрямую.</p>
+<p>После изменений в html, перезагрузите сервер и зайдите на созданную страницу. Удивительно, но страница из сети Интернет изображение загрузилось нормально, а вот локально загрузить изображение не удалось.</p>
+<p>Если вы исследуете адрес изображения, которое не загрузилось то вы увидите, что адрес написан правильно, но попытка открыть изображение напрямую, приводит на страницу 404. Это результат работы сервера. Ведь все запросы к серверу обрабатывает наш файл js. А ссылка на локальное изображение - это именно запрос на сервер, который в роутере не прописан. Как результат вместо изображения отдается страница 404. Нам нужно учесть запросы файлов в роутере и научиться их правильно загружать, ведь до этого мы просто брали файл, открывали его и передавали код в браузер. С изображениями, видеофайлами и другими типами файлов так не получится.</p>
+
+<a href="task4.html">Задача2</a>
+<hr>
+<h3>Stream и отправка файлов</h3>
+<p>Если мы работаем с довольно большими файлами, то более оптимальным способом для отправки файлов будет использование потоков. Например, добавим в папку проекта какой-нибудь файл. В моем случае, я добавил файл some.doc, то есть файл, созданный в программе Microsoft Word.</p>
+<p>Изменим роутер так, чтобы он мог загрузить изображение 1.jpg, которое находится в папке images</p>
+<pre class="code">
+var http = require('http');
+var fs   = require('fs');
+http.createServer(function(request, response) {
+  function routeLoad(path) {
+      fs.readFile(path, { encoding: 'utf8' }, function(error, file) {
+          if (!error) {
+              response.writeHead(200, { 'Content-Type': 'text/html'});
+              response.write(file);
+              response.end();
+          }
+      });
+  }
+  var url = request.url;
+  console.log(url);
+  if      (url=='/one') routeLoad('one.html');
+  else if (url=='/two') routeLoad('two.html');
+  else if (url=='/images/1.jpg') {
+    response.writeHead(200, {"Content-Type" : "image/jpeg"})
+    fs.createReadStream("images/1.jpg").pipe(response);
+  }
+  else {
+    response.setHeader("Content-Type", "text/html");
+    response.write("&#x3C;h2&#x3E;404&#x3C;/h2&#x3E;");
+    response.end();
+  }
+}).listen(3000);</pre>
+<p>Запустите сервер и убедитесь, что все работает! Давайте рассмотрим этот участок кода подробнее:</p>
+<pre class="code">
+  response.writeHead(200, {"Content-Type" : "image/jpeg"})
+  fs.createReadStream("images/1.jpg").pipe(response);
+</pre>
+<p>В данном коде мы выставляем mime-тип ответа сервера, который определяет тип файла для загрузки. Почитать о mime можно <a href="https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_MIME-%D1%82%D0%B8%D0%BF%D0%BE%D0%B2" target="_blank">здесь</a>. </p>
+<p>Второе действие, мы организуем чтение файлов с помощью потоков. Для получения данных из потока вызывается метод pipe(), в который передается объект интерфейса stream.Writable или поток для записи. А именно таким и является объект http.ServerResponse, который реализует этот интерфейс.</p>
+<p>Давайте попробуем перезапустить сервер со следующим кодом:</p>
+<pre class="code">
+  var http = require('http'),
+    url = require('url'),
+    path = require('path'),
+    fs = require('fs');
+var mimeTypes = {
+    "html": "text/html",
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "png": "image/png",
+    "js": "text/javascript",
+    "css": "text/css"};
+
+http.createServer(function(req, res) {
+    var uri = url.parse(req.url).pathname;
+    var filename = path.join(process.cwd(), unescape(uri));
+    var stats;
+
+    try {
+        stats = fs.statSync(filename); // throws if path doesn't exist
+    } catch (e) {
+        res.writeHead(404, {'Content-Type': 'text/plain'});
+        res.write('404 Not Found\n');
+        res.end();
+        return;
+    }
+    if (stats.isFile()) {
+        // path exists, is a file
+        var mimeType = mimeTypes[path.extname(filename).split(".").reverse()[0]];
+        res.writeHead(200, {'Content-Type': mimeType} );
+        var fileStream = fs.createReadStream(filename);
+        fileStream.pipe(res);
+    } else if (stats.isDirectory()) {
+        // path exists, is a directory
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.write('Index of '+uri+'\n');
+        res.write(' show index?\n');
+        res.end();
+    } else {
+        // Symbolic link, other?
+        // TODO: follow symlinks?  security?
+        res.writeHead(500, {'Content-Type': 'text/plain'});
+        res.write('500 Internal server error\n');
+        res.end();
+    }
+
+}).listen(3000);
+</pre>
+<p>Мы получили возможность загружать статические файлы с помощью сервера. Сервер мы будем еще дорабатывать, но даже в таком, минимальном виде, мы уже может реализовывать множество различных сайтов.</p>
+<h3>Nodemon</h3>
+<p>При работе с сервером, нам часто приходится перезапускать сервер при внесении изменений в код, что не очень удобно. Для разработки на Node.js удобным вариантом была бы возможность правки кода без перезапуска сервера. Для этого используется пакет nodemon. Установите пакет:</p>
+<pre class="code">
+  npm install nodemon -g</pre>
+<p>Теперь в проектах вы можете запускать сервер и менять его код без перезагрузки. Для этого наберите:</p>
+<pre class="code">
+  nodemon app.js</pre>
+  <p>При внесении изменений в код сервера, nodemon автоматически перезагрузит сервер.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h4>Дополнительные материалы</h4>
+<ul class="browser-default">
+  <li><a href="https://metanit.com/web/nodejs/2.1.php">Основы работы с Node.js Модули</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.2.php">Работа с модулями</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.3.php">Объект global и глобальные переменные</a></li>
+</ul>
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

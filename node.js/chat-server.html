@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Node.js</title>
+  <link href="httlis://fonts.googlealiis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,lirojection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewliort" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+	<div class="container">
+	<h2>Построение чат-сервера в среде Node.js</h2>
+<p>Node.js облегчает написание основанных на событиях сетевых серверов. В качестве примера создадим несколько чат-серверов. Первый из этих серверов вполне тривиален, он практически лишен функциональности и не поддерживает какой-либо обработки исключений.
+Чат-сервер — это программа, к которой могут подключаться несколько клиентов. Каждый клиент может писать сообщения, которые затем транслируются всем остальным клиентам (пользователям). Ниже представлен код простейшего чат-сервера.</p>
+
+<pre class="code">
+net = require('net');
+ 
+var sockets = [];
+ 
+var s = net.Server(function(socket) {
+ 
+    sockets.push(socket);
+ 
+    socket.on('data', function(d) {
+ 
+        for (var i=0; i &lt; sockets.length; i++ ) {
+            sockets[i].write(d);
+        }
+    });
+});
+ 
+s.listen(8001);
+</pre>
+
+<p>Мы построили работающий чат-сервер из менее чем 20 строк программного кода (а фактически что-либо делают лишь восемь строк). Эта простая программа действует следующим образом:
+Когда сокет устанавливает соединение, объект socket присоединяется к массиву.
+Когда клиент «записывает» данные в свое соединение, эти данные записываются во все сокеты.
+Теперь мы пройдемся по этому коду и рассмотрим, каким образом в этом примере реализуется базовая функциональность чат-сервера.</p><p> Первая строка разрешает доступ к содержимому модуля net:</P>
+<pre class="code">
+net = require('net');
+</pre>
+Используем элемент Server из этого модуля.
+Вам потребуется место для размещения всех соединений клиентов, чтобы вы смогли писать данные во все эти соединения. Показанная ниже переменная содержит все сокетные соединения клиентов:
+<pre class="code">var sockets = [];</pre>
+Следующая строка запускает фрагмент кода, который предписывает, что делать при подключении каждого клиента.
+<pre class="code">
+var s = net.Server(function(socket) {
+</pre>
+<p>
+Единственным аргументом, который передается в Server, является функция, которая вызывается для каждого соединения клиента. Внутри этой функции соединение клиента нужно добавить к списку всех соединений клиентов:</p>
+<pre class="code">
+sockets.push(socket);
+</pre>
+В следующем фрагменте кода настраивается обработчик событий, который предписывает, что нужно делать, когда клиент отсылает данные:
+<pre class="code">
+socket.on('data', function(d) {
+ 
+    for (var i=0; i &lt; sockets.length; i++ ) {
+        sockets[i].write(d);
+    }
+});
+</pre>
+Вызов socket.on() регистрирует обработчика событий с узлом, благодаря чему он знает что делать, когда происходят определенные события. При получении данных от клиента инфраструктура Node.js осуществляет вызов именно этого обработчика событий. Кроме того, имеются следующие обработчики событий: connect, end, timeout, drain, error, close.
+По своей структуре вызов socket.on () подобен вызову Server(), упомянутому ранее. Вы передаете функцию в оба этих вызова, а вызов этой функции осуществится, когда что-либо произойдет. Такой подход с обратным вызовом широко распространен в асинхронных сетевых инфраструктурах. Это основной момент, с которым возникают проблемы у специалистов с опытом процедурного программирования, когда они начинают заниматься такими асинхронными инфраструктурами, как Node.js.
+<hr> 
+Описанный чат-сервер весьма прост. Он настолько прост, что в нем отсутствуют некоторых базисные функции, такие как идентификация пользователя, пославшего сообщение, или обработка ситуаций с рассоединением клиента (если после отключения клиента от этого чат-сервера кто-либо пошлет этому клиенту сообщение, чат-сервер потерпит крах).
+Ниже приведен исходный код (файл chat2.js в материалах для загрузки) для усовершенствованного сокет-сервера с расширенной функциональностью, а также код для обработки "возникающих неприятностей" (таких как отключения клиентов).
+<pre class="code">
+net = require('net');
+ 
+var sockets = [];
+var name_map = new Array();
+var chuck_quotes = [
+    "There used to be a street named after Chuck Norris, but it was changed because 
+     nobody crosses Chuck Norris and lives.",
+    "Chuck Norris died 20 years ago, Death just hasn't built up the courage to tell 
+     him yet.",
+    "Chuck Norris has already been to Mars; that's why there are no signs of life.",
+    "Some magicians can walk on water, Chuck Norris can swim through land.",
+    "Chuck Norris and Superman once fought each other on a bet. The loser had to start 
+     wearing his underwear on the outside of his pants."
+]
+ 
+function get_username(socket) {
+    var name = socket.remoteAddress;
+    for (var k in name_map) {
+        if (name_map[k] == socket) {
+            name = k;
+        }
+    }
+    return name;
+}
+ 
+function delete_user(socket) {
+    var old_name = get_username(socket);
+    if (old_name != null) {
+        delete(name_map[old_name]);
+    }
+}
+ 
+function send_to_all(message, from_socket, ignore_header) {
+    username = get_username(from_socket);
+    for (var i=0; i &lt; sockets.length; i++ ) {
+        if (from_socket != sockets[i]) {
+            if (ignore_header) {
+                send_to_socket(sockets[i], message);
+            }
+            else {
+                send_to_socket(sockets[i], username + ': ' + message);
+            }
+        }
+    }
+}
+ 
+function send_to_socket(socket, message) {
+    socket.write(message + '\n');
+}
+ 
+function execute_command(socket, command, args) {
+    if (command == 'identify') {
+        delete_user(socket);
+        name = args.split(' ', 1)[0];
+        name_map[name] = socket;
+    }
+    if (command == 'me') {
+        name = get_username(socket);
+        send_to_all('**' + name + '** ' + args, socket, true);
+    }
+    if (command == 'chuck') {
+        var i = Math.floor(Math.random() * chuck_quotes.length);
+        send_to_all(chuck_quotes[i], socket, true);
+    }
+    if (command == 'who') {
+        send_to_socket(socket, 'Identified users:');
+        for (var name in name_map) {
+            send_to_socket(socket, '- ' + name);
+        }
+    }
+}
+ 
+function send_private_message(socket, recipient_name, message) {
+    to_socket = name_map[recipient_name];
+    if (! to_socket) {
+        send_to_socket(socket, recipient_name + ' is not a valid user');
+        return;
+    }
+    send_to_socket(to_socket, '[ DM ' + get_username(socket) + ' ]: ' + message);
+}
+ 
+var s = net.Server(function(socket) {
+    sockets.push(socket);
+    socket.on('data', function(d) {
+        data = d.toString('utf8').trim();
+        // check if it is a command
+        var cmd_re = /^\/([a-z]+)[ ]*(.*)/g;
+        var dm_re = /^@([a-z]+)[ ]+(.*)/g;
+        cmd_match = cmd_re.exec(data)
+        dm_match = dm_re.exec(data)
+        if (cmd_match) {
+            var command = cmd_match[1];
+            var args = cmd_match[2];
+            execute_command(socket, command, args);
+        }
+        // check if it is a direct message
+        else if (dm_match) {
+            var recipient = dm_match[1];
+            var message = dm_match[2];
+            send_private_message(socket, recipient, message);
+        }
+        // if none of the above, send to all
+        else {
+            send_to_all(data, socket);
+        };
+ 
+    });
+    socket.on('close', function() {
+        sockets.splice(sockets.indexOf(socket), 1);
+        delete_user(socket);
+    });
+});
+s.listen(8001);
+</pre>
+
+<hr> 
+<h1>Более изощренные возможности: чат-сервер с балансировкой нагрузки</h1>
+Нередко одной из побудительных причин развертывания в облачной среде является необходимость масштабирования по мере увеличения нагрузки. Такое развертывание требует той или иной разновидности механизма для балансировки (выравнивания) нагрузки.
+Большинство "легких" веб-серверов, таких как nginx и lighttpd, способны осуществлять балансировку нагрузки между несколькими HTTP-серверами, однако если вам нужно балансировать нагрузки между не-HTTP-серверами, nginx — не самый лучший выбор. Существуют стандартные балансировщики TCP-нагрузки, однако вам может не понравиться алгоритм выравнивания нагрузки, который они используют. Или вам может потребоваться определенная функциональность, которую они не поддерживают. И, наконец, у вас может возникнуть непреодолимое желание написать собственный балансировщик нагрузки — просто ради развлечения.
+Рассмотрим простейший балансировщик нагрузки. Он не осуществляет никаких переключений при отказе (failover). Он предполагает, что все места назначения остаются доступными. Кроме того, он не производит никакой обработки ошибок. Это весьма «спартанский» балансировщик. Его основная идея состоит в том, что он принимает сокетное соединение от клиента, по случайному закону выбирает сервер назначения для установки соединения и подключается к нему, а затем передает все данные от клиента на этот сервер и все данные от этого сервера обратно клиенту.
+
+<pre class="code">
+net = require('net');
+ 
+var destinations = [
+    ['localhost', 8001],
+    ['localhost', 8002],
+    ['localhost', 8003],
+]
+ 
+var s = net.Server(function(client_socket) {
+    var i = Math.floor(Math.random() * destinations.length);
+    console.log("connecting to " + destinations[i].toString() + "\n");
+    var dest_socket = net.Socket();
+    dest_socket.connect(destinations[i][1], destinations[i][0]);
+ 
+    dest_socket.on('data', function(d) {
+        client_socket.write(d);
+    });
+    client_socket.on('data', function(d) {
+        dest_socket.write(d);
+    });
+});
+s.listen(9001);
+</pre>
+Определение destinations— это конфигурация для внутренних серверов, между которыми мы собираемся выравнивать нагрузки. Это простой массив массивов, у которых первый элемент — это имя хоста, а второй элемент — это номер порта.
+Определение Server() подобно примеру с чат-сервером. Мы создаем сокет-сервер и заставляем его осуществлять прослушивание порта. В данном случае он будет прослушивать порт 9001.
+Обратный вызов для определения Server() сначала по случайному закону выбирает пункт назначения для подключения:
+<pre class="code">var i = Math.floor(Math.random() * destinations.length);</pre>
+В данном случае можно было бы использовать циклический алгоритм типа round-robin или приложить немного дополнительных усилий и реализовать алгоритм выбора по наименьшему количеству соединений, однако мы хотели сохранить наш балансировщик максимально простым.
+В этом примере имеются два именованных объекта socket: client_socket и dest_socket.
+<ul>
+<li>client_socket— это соединение между балансировщиком нагрузки и клиентом.</li>
+<li>dest_socket— это соединение между балансировщиком нагрузки и балансируемыми серверами.</li>
+</ul>
+Каждый из этих двух сокетов обрабатывает одно событие: получение данных. Когда любой из этих сокетов получает данные, он записывает эти данные в другой сокет.
+Рассмотрим всю последовательность действий, которые выполняются, когда клиент подключается к обычному сетевому серверу через балансировщик нагрузки и посылает данные, а затем получает данные.
+<ol>
+	
+
+<li>Когда клиент соединяется с балансировщиком нагрузки, инфраструктура Node.js создает сокет между клиентом и собой. Мы называем этот сокет client_socket.</li>
+<li>После того как соединение будет установлено, балансировщик нагрузки выбирает пункт назначения и создает сокетное соединение с этим пунктом назначения. Мы называем этот сокет dest_socket.</li>
+<li>Когда клиент присылает данные, балансировщик нагрузки отсылает эти же данные на сервер назначения.</li>
+<li>Когда сервер назначения отвечает и записывает определенные данные в сокет dest_socket, балансировщик нагрузки направляет эти данные обратно клиенту через сокет client_socket.</li>
+</ol>
+В рассмотренном выше балансировщике нагрузки могут быть реализованы следующие улучшения: обработка ошибок, встраивание в тот же процесс с целью динамического добавления/удаления пунктов назначения, добавление иных алгоритмов балансировки, добавление функций устойчивости к ошибкам.
+
+
+
+
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+ <div class="container">
+	<h1>Модуль Nodemailer</h1>
+	<img src="https://bowerwebsolutions.com/newbws/wp-content/uploads/2014/08/emailfeaturedimage.jpg" alt="" width="200">
+	<p>Модуль Nodemailer упрощает отправку писем с вашего компьютера.</p>
+
+<p>Модуль Nodemailer можно загрузить и установить с помощью npm:</p>
+	<pre class="code">
+	C:\Users\Your Name>npm install nodemailer
+	</pre>
+	
+	
+	<p>После того как вы загрузили модуль Nodemailer, вы можете включить модуль в любое приложение:</p>
+	<pre class="code">
+	var nodemailer = require('nodemailer');
+	</pre>
+	
+	<h2>Отправить письмо</h2>
+	<p>Теперь вы готовы отправлять электронные письма с вашего сервера.</p>
+
+<p>Используйте имя пользователя и пароль от выбранного поставщика электронной почты для отправки электронной почты. В этом уроке вы узнаете, как использовать свою учетную запись Gmail для отправки электронной почты:</p>
+	<pre class="code">
+	var nodemailer = require('nodemailer');
+
+	var transporter = nodemailer.createTransport({
+	  service: 'gmail',
+	  auth: {
+		user: 'youremail@gmail.com',
+		pass: 'yourpassword'
+	  }
+	});
+
+	var mailOptions = {
+	  from: 'youremail@gmail.com',
+	  to: 'myfriend@gmail.com',
+	  subject: 'Sending Email using Node.js',
+	  text: 'That was easy!'
+	};
+
+	transporter.sendMail(mailOptions, function(error, info){
+	  if (error) {
+		console.log(error);
+	  } else {
+		console.log('Email sent: ' + info.response);
+	  }
+	});
+	</pre>
+	
+	
+	<p>Вот и все! Теперь ваш сервер может отправлять электронные письма.</p>
+	
+	<h2>Несколько отправок=>получателей</h2>
+	<p>Чтобы отправить электронное письмо нескольким получателям, добавьте их в свойство «to» объекта mailOptions, разделенное запятой:</p>
+	<p>Отправить письмо по нескольким адресам:</p>
+	<pre class="code"> 
+		var mailOptions = {
+		  from: 'youremail@gmail.com',
+		  to: 'myfriend@mail.ru, myotherfriend@yahoo.com',
+		  subject: 'Sending Email using Node.js',
+		  text: 'That was easy!'
+		}
+	</pre>
+	
+	<h2>Отправить HTML</h2>
+	<p>Чтобы отправить текст в формате HTML в свой адрес электронной почты, используйте свойство «html» вместо свойства «text»:</p>
+	<pre class="code"> 
+			var mailOptions = {
+		  from: 'youremail@gmail.com',
+		  to: 'myfriend@yahoo.com',
+		  subject: 'Sending Email using Node.js',
+		  html: '&lt;h1&gt;Welcome&lt;/h1&gt;&lt;p&gt;That was easy!&lt;/p&gt;'
+		}
+	</pre>
+	
+    </div>
+</body>
+</html>

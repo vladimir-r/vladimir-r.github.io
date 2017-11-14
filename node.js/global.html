@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+	<div class="container"> 
+	
+	<h2>Глобальный объект</h2>
+<p>Node.js предоставляет специальный объект global, который предоставляет доступ к глобальным, то есть доступным из каждого модуля приложения, переменным и функциям. Примерным аналогом данного объекта в javascript для браузера является объект window. Все доступные глобальные объекты можно посмотреть в <a href="https://nodejs.org/api/globals.html" target="_blank">документации</a>.</p>
+<p>Если в предыдущем примере мы заменим </p>
+<pre class="code">
+  module.exports.a = 4;</pre>
+  <p>на</p>
+  <pre class="code">global.a=4</pre>
+  <p>то сможем использовать его в любом модуле.</p>
+<p>Однако по возможности все таки рекомендуется избегать определения и использования глобальных переменных, и преимущественно ориентироваться на создание переменных, инкапсулированных в рамках отдельных модулей.</p>
+<h2>Передача параметров приложению </h2>
+<p>При запуске приложения из терминала/командной строки мы можем передавать ему параметры. Для получения параметров в коде приложения применяется массив process.argv.</p>
+<p>Первый элемент этого массива всегда указывает на путь к файлу node.exe, который вызывает приложение. Второй элемент массив всегда указывает на путь к файлу приложения, который выполняется.</p>
+<pre class="code">
+var nodePath = process.argv[0];
+var appPath = process.argv[1];
+var name = process.argv[2];
+var age = process.argv[3];
+ 
+console.log("nodePath: " + nodePath);
+console.log("appPath: " + appPath);
+console.log();
+console.log("name: " + name);
+console.log("age: " + age);</pre>
+<p>В данном случае мы ожидаем, что приложению будут переданы два параметра: name и age.</p>
+<p>Теперь запустим приложение с помощью следующей команды:</p>
+<pre class="code">node app.js Tom 23</pre>
+<p>В данном случае "Tom" и "23" - это те значения, которые помещаются соответственно в process.argv[2] и process.argv[3]:</p>
+	
+	</div>
+</body>
+</html>

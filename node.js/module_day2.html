@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day2 Модуль</h1>
+	<h3> Патерн "модуль"</h3>
+	<pre class="code "> 
+	var KorzinaModule=(function(){
+		var sum=0; //privet data
+		goods=[]; //privet data
+		
+				// public interface
+		return {
+			addProduct:function(product){
+				sum+=product.prise;
+				goods.push(product)
+			},
+			
+			printProduct:function(){
+				for(var i=0; i &lt; goods.length;i++){ 
+					console.log(goods[i].name, goods[i].price)
+				}
+			}
+		
+		}
+	}());
+	
+	var sault={
+		name:'Соль',
+		price:20
+	};
+	KorzinaModule.addProduct(sault);
+	KorzinaModule.printProduct()
+	
+	</pre>
+    <h2>Модульная структура Node.js. Встроенные модули. Подключение модулей, получение справки о модулях</h2>
+    <p>Node.js использует модульную систему. То есть вся встроенная функциональность разбита на отдельные пакеты или модули. Модуль представляет блок кода, который может использоваться повторно в других модулях.</p>
+    <p>При необходимости мы можем подключать нужные нам модули. Какие встроенные модули есть в node.js и какую функциональность они предоставляют, можно узнать из <a href="https://nodejs.org/api/" target="_blank">документации</a>.</p>
+	<ul> 
+		<li>Для работы с файловыми системами существует модуль <b>fs</b></li>
+		<li>для сетей используются такие модули как :
+		<ul>
+		<li><b>net</b>(TCP)</li>
+		<li><b>http</b> (HTTP)</li>
+		<li><b>dgram</b> (UDP)</li>
+		</ul>
+		</li>
+		<li>модуль для асинхронной обработки DNS-запросов под названием <b>dns</b></li>
+		<li>модуль для получения сведений об ОС, например, о расположении tmpdir -<b> os </b></li>
+		<li>модуль для распределения бинарных участков памяти<b> buffer</b></li>
+		<li>несколько модулей для анализа ссылок и путей:
+			<ul>
+				<li>url</li>
+				<li>querystring</li>
+				<li>path</li>
+			</ul>
+		</li>
+		<li><b>...</b></li>
+	</ul>
+	
+	
+	
+	
+	
+    <p>Для загрузки модулей применяется функция require(), в которую передается название модуля. К примеру, в первом приложении из предыдущей темы для получения и обработки запроса был необходим модуль http:</p> 
+    <pre class="code">var http = require("http");</pre>
+    <p>После получения модуля мы сможем использовать весь определенный в нем функционал, который опять же можно посмотреть в <a href="https://nodejs.org/api/http.html" target="_blank">документации</a>.</p>
+    <p>Подобным образом мы можем загружать и использовать другие встроенные модули. Например, используем модуль os, который предоставляет информацию об окружении и операционной системе:</p>
+    <pre class="code">
+var os = require("os");
+// получим имя текущего пользователя
+var userName = os.userInfo().username;
+console.log(userName);</pre>
+    <p>Мы не ограничены встроенными модулями и при необходимости можем создать свои. Так, в прошлой теме проект состоял из файла helloworld.js. Добавим рядом с этим файлом новый файл greeting.js и определим в нем следующий код:</p>
+    <pre class="code">console.log("greeting module");</pre>
+    <p>В файле helloworld.js подключим наш модуль:</p>
+    <pre class="code">var greeting = require("./greeting");</pre>
+    <p>В отличие от встроенных модулей для подключения своих модулей надо передать в функцию require относительный путь с именем файла (расширение файла необязательно):</p>
+    <p>Запустим приложение:</p>
+    <img src="images/day2/day_2_1.png" alt="" class="responsive-img">
+    <p>Таким образом, мы получаем возможность создавать модульную структуру сайта, что позволяет реализовать разделение сайта на заголовок, футер, боковую панель, главную и т.д.</p>
+    <h3>Видимость переменных при использовании require</h3>
+    <p>В предыдущем примере, мы смогли подключить код одного модуля в другой. Давайте изменим код файла greeting.js:</p>
+    <pre class="code">
+console.log('greeeeet');
+var a = 'primer';</pre>
+    <p>Теперь попытаемся вывести переменную a в файле helloworld.js:</p>
+    <pre class="code">
+var greeting = require("./greeting");
+console.log('hello');
+console.log(a);</pre>
+<p>В результате выполнения мы получим ошибку: </p>
+<img src="images/day2/day_2_2.png" alt="">
+<p>Для реализации возможности передавать переменные из одного модуля в другой, воспользуемся методом module.exports. Изменим код файла greeting.js </p>
+<pre class="code">
+console.log('greeeeet');
+module.exports.a = 4;</pre>
+<p>и файла helloworld.js</p>
+<pre class="code">
+console.log('greeeeet');
+module.exports.a = 4;</pre>
+<p>Так, с помощью объекта module.exports мы можем передавать свойства и методы в другой модуль. </p>
+
+<h4>Дополнительные материалы</h4>
+<ul class="browser-default">
+  <li><a href="https://metanit.com/web/nodejs/2.1.php">Основы работы с Node.js Модули</a></li>
+  <li><a href="https://habrahabr.ru/post/233827/">Основы работы с модулями в Node.js</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.2.php">Работа с модулями</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.3.php">Объект global и глобальные переменные</a></li>
+</ul>
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<button>Push</button>
+	
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$('button').on('click', function(){
+				$.get(
+					"/",
+					{
+						"data1" : 11111,
+						"data2" : 222222
+					},
+					function(data){
+						console.log(data);
+					}
+					);
+			});
+
+		});
+	</script>
+</body>
+</html>

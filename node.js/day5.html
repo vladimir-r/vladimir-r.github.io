@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day5</h1>
+    <h2>Node и AJAX</h2>
+	<p>
+JSON представляет один из самых популярных форматов хранения и передачи данных, и Express имеет все возможности для работы с JSON. Однако опять же, как и в прошлой теме, для полноценной работы с json необходим пакет body-parser, который можно добавить с помощью команды
+</p>
+<pre class="code">npm install body-parser --save</pre>
+<p>Пусть в проекте приложения в папке public имеется файл register.html со следующим кодом:
+</p>
+<code class="code">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регистрация</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h1>Введите данные</h1>
+    <form action="/register" method="post" name="registerForm">
+        <label>Имя</label></br>
+        <input type="text" name="userName" /></br></br>
+        <label>Возраст</label></br>
+        <input type="number" name="userAge" /></br></br>
+        <input type="submit" value="Отправить" />
+    </form>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script>
+        $("form").submit(function(e) {
+             
+            e.preventDefault();
+            var registerForm = document.forms["registerForm"];
+            var userName = registerForm.elements["userName"].value;
+            var userAge = registerForm.elements["userAge"].value;
+             
+            $.ajax({
+                type: "POST",
+                url: "/user",
+                data: JSON.stringify({userName: userName, userAge: userAge}),
+                dataType: "json",
+                contentType: "application/json",
+                success: function(data){ 
+                    console.log(data);
+                    },
+                });
+        });
+    </script>
+</body>
+<html>
+</code>
+<p>Здесь, как и в прошлой теме, определена форма с двумя полями для ввода имени и возраста пользователя. Но теперь с помощью кода jquery мы перехватываем отправку формы, и отправляем ее с помощью ajax, а сами отправляемые данные сериализуем json.
+</p><p>
+Далее определим в главном файле приложения - в app.js код, который бы принимал отправленные данные:
+</p>
+
+<pre class="code">
+var express = require("express");
+var bodyParser = require("body-parser");
+ 
+var app = express();
+// создаем парсер для данных в формате json
+var jsonParser = bodyParser.json();
+ 
+app.use(express.static(__dirname + "/public"));
+ 
+app.post("/user", jsonParser, function (request, response) {
+    if(!request.body) return response.sendStatus(400);
+    console.log(request.body);
+    response.json(`${request.body.userName} - ${request.body.userAge}`);
+});
+ 
+app.get("/", function(request, response){
+     
+    response.send("<h1>Главная страница</h1>");
+});
+ 
+app.listen(3000);
+</pre>
+<p>Прежде всего для получения данных в формате json необходимо создать парсер:
+</p>
+<pre class="code">
+var jsonParser = bodyParser.json();
+</pre>
+<p>И поскольку с клиентом мы взаимодействуем через формат json, то данные клиенту отправляются с помощью метода response.json():
+</p>
+<pre class="code">
+app.post("/user", jsonParser, function (request, response) {
+    if(!request.body) return response.sendStatus(400);
+    console.log(request.body);
+    response.json(`${request.body.userName} - ${request.body.userAge}`);
+});</pre>
+<p>
+Для получения данных, как и в случае с формами, используются выражения типа request.body.userName, где request.body инкапсулирует данные формы, а userName 
+- ключ данных.</p>
+<p>
+Запустим приложение и обратимся к странице register.html. Введем какие-нибудь данные и после отправки в консоли браузера отобразится ответ сервера:
+</p>
+
+<br>
+<br>
+<h2><a href="https://metanit.com/web/nodejs/4.5.php"> POST & GET in NODE</a></h2>
+<br>
+<hr> 
+
+<h3>Express</h3>
+<p> В express встроена мощная система маршрутизации. Например:</p>
+<pre class="code">app.get('/user/:id', function(req, res){
+    res.send('user ' + req.params.id);
+});</pre>
+
+
+<p>
+Данный код обрабатывает запросы /user/foo, для которых автоматически выставляется значение foo для переменной req.params.id. Для описания маршрутов вы так же можете использовать регулярные выражения.</p>
+
+<p>Если вы хотите обрабатывать POST запросы, то вашему приложению необходимо использовать специальный middleware — bodyParser. Подключается он очень легко: app.use(express.bodyParser()). BodyParser обрабатывает тела application/x-www-form-urlencoded и application/json запросов и выставляет для них req.body. Вот пример:</p>
+<pre class="code">
+app.use(express.bodyParser());
+
+app.post('/', function(req, res){
+    console.log(req.body.foo);
+    res.send('ok');
+});</pre>
+<p>В данном примере на консоль выводится значение переменной foo из тела запроса, а в ответ на запрос возвращается строка ok.</p>
+
+<p>Кроме bodyParser доступно еще несколько middleware’ей:</p>
+<pre class="code">
+app.use(express.logger(...));
+app.use(express.cookieParser(...));
+app.use(express.session(...));
+app.use(express.static(...));
+app.use(express.errorHandler(...));</pre>
+<p>logger отвечает за логирование HTTP запросов, cookieParser — за обработку cookies, session — за работу с сессиями, static — за работу со статическим контентом (css, javascript, картинки), errorHandler — за обработку ошибок. Более подробно о них можно узнать из документации.</p>
+
+<p>Кроме того, express имеет поддержку различных шаблонных движков. Например, моего любимого шаблонного языка jade (автором так же является TJ). Вот пример использования jade с express:</p>
+<pre class="code">
+app.get('/', function(req, res){
+    res.render('index.jade', { title: 'My Site' });
+});</pre>
+<p>Имена файлов шаблонов имеют вид <имя>.<движок>, где <движок> — имя модуля, который необходим для обработки тела шаблона. Например, шаблон layout.ejs «сообщит» express, что необходимо сделать require('ejs') перед обработкой шаблона. Загружаемый модуль должен экспортировать метод exports.compile(str, options) и возвращать Function.</p>
+
+<h3>Основные возможности express:</h3> 
+<ul>
+<li>гибкая система маршрутизации запросов</li> 
+<li>перенаправления</li> 
+<li>динамические представления</li> 
+<li>уточнение контента</li> 
+<li>особое внимание производительности</li> 
+<li>обработка представлений и поддержка частичных шаблонов</li> 
+<li>поддержка конфигураций на основе окружений</li> 
+<li>оповещения, интегрированные с сессиями</li> 
+<li>максимальное покрытие тестами</li> 
+<li>утилиты для быстрой генерации остова приложений</li> 
+<li>настройки представлений на уровне приложений</li> 
+</ul>
+<h4>Кроме того:</h4>
+<ul>
+<li>поддержка сессий</li> 
+<li>кэш API</li> 
+<li>поддержка mime</li> 
+<li>поддержка ETag</li> 
+<li>постоянные оповещения</li> 
+<li>поддержка кук</li> 
+<li>JSON RPC</li> 
+<li>логирование</li> 
+</ul>
+<p>Для первого знакомства будет не лишним посмотреть скринкаст про express от TJ. Для ознакомления с примерами можно взглянуть на директорию examples в исходном коде фреймворка. Так же для express есть шикарная документация.
+
+<p>Установка express тривиальна:
+<pre class="code">
+npm install express</pre>
+</p>
+<h4>Дополнительные материалы</h4>
+<ul class="browser-default">
+  <li><a href="https://metanit.com/web/nodejs/4.6.php">JSON и AJAX</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.2.php">Работа с модулями</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.3.php">Объект global и глобальные переменные</a></li>
+</ul>
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>
