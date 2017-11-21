@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Node.js</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Day3</h1>
+    <h2>Работа с файловой системой. Модуль fs</h2>
+<p>Для работы с файлами в Node.js предназначен модуль fs. Рассмотрим, как с ним работать. Для начала подключим модуль:</p>
+<pre class="code">var fs = require("fs");</pre>
+<h3>Чтение файла</h3>
+<i>Синтаксис</i>
+<p>Ниже приведен синтаксис одного из методов чтения из файла -</p>
+<pre class="code">
+fs.read(fd, buffer, offset, length, position, callback)
+</pre>
+Этот метод будет использовать файловый дескриптор для чтения файла. Если вы хотите прочитать файл напрямую, используя имя файла, вы должны использовать другой доступный метод.
+
+параметры
+Вот описание используемых параметров -
+<ul>
+<li><b>fd</b> - это дескриптор файла, возвращаемый функцией fs.open ().</li>
+
+<li><b>buffer</b> - это буфер, на который будут записаны данные.</li>
+
+<li><b>offset</b> - это смещение в буфере для начала записи.</li>
+
+<li><b>length</b> - это целое число, определяющее количество прочитанных байтов.</li>
+
+<li><b>position</b> - Это целое число, определяющее, с чего начать чтение из файла. Если позиция равна нулю, данные будут считаны из текущей позиции файла.</li>
+
+<li><b>callback</b> - это функция обратного вызова, которая получает три аргумента (err, bytesRead, buffer).</li>
+</ul>
+пример
+Создадим файл js с именем main.js со следующим кодом -
+<pre class="code"> 
+var fs = require("fs");
+var buf = new Buffer(1024);
+
+console.log("Going to open an existing file");
+fs.open('input.txt', 'r+', function(err, fd) {
+   if (err) {
+      return console.error(err);
+   }
+   console.log("File opened successfully!");
+   console.log("Going to read the file");
+   fs.read(fd, buf, 0, buf.length, 0, function(err, bytes){
+      if (err){
+         console.log(err);
+      }
+      console.log(bytes + " bytes read");
+      
+      // Print only read bytes to avoid junk.
+      if(bytes > 0){
+         console.log(buf.slice(0, bytes).toString());
+      }
+   });
+});
+
+</pre>
+<h3>Закрытие файла</h3>
+<i>Синтаксис</i>
+<p>Ниже приведен синтаксис для закрытия открытого файла -</p>
+<pre class="code">fs.close(fd, callback)</pre>
+
+<b>параметры</b>
+Вот описание используемых параметров -
+<ul>
+<li>fd - это дескриптор файла, возвращаемый методом fs.open ().</li>
+
+<li>callback - это функция обратного вызова. Аргументам завершения завершения не присваиваются никакие аргументы, кроме возможного исключения.
+</li>
+</ul>
+<pre class="code"> 
+var fs = require("fs");
+var buf = new Buffer(1024);
+
+console.log("Going to open an existing file");
+fs.open('input.txt', 'r+', function(err, fd) {
+   if (err) {
+      return console.error(err);
+   }
+   console.log("File opened successfully!");
+   console.log("Going to read the file");
+   
+   fs.read(fd, buf, 0, buf.length, 0, function(err, bytes){
+      if (err){
+         console.log(err);
+      }
+
+      // Print only read bytes to avoid junk.
+      if(bytes > 0){
+         console.log(buf.slice(0, bytes).toString());
+      }
+
+      // Close the opened file.
+      fs.close(fd, function(err){
+         if (err){
+            console.log(err);
+         } 
+         console.log("File closed successfully.");
+      });
+   });
+});
+
+</pre>
+
+
+<h3>Усекать файл</h3>
+<i>Синтаксис</i>
+Ниже приведен синтаксис метода обрезания открытого файла -
+<pre class="code">
+fs.ftruncate(fd, len, callback)
+</pre>
+<b>параметры</b>
+Вот описание используемых параметров -
+<ul>
+<li><b>fd</b> - это дескриптор файла, возвращаемый функцией fs.open ().</li>
+
+<li><b>len</b> - длина файла, после которого файл будет усечен.</li>
+
+<li><b>callback</b> - это функция обратного вызова. Аргументам завершения завершения не присваиваются никакие аргументы, кроме возможного исключения.</li>
+</ul>
+пример
+Создадим файл js с именем main.js, имеющий следующий код -
+<pre class="code">
+var fs = require("fs");
+var buf = new Buffer(1024);
+
+console.log("Going to open an existing file");
+fs.open('input.txt', 'r+', function(err, fd) {
+   if (err) {
+      return console.error(err);
+   }
+   console.log("File opened successfully!");
+   console.log("Going to truncate the file after 10 bytes");
+   
+   // Truncate the opened file.
+   fs.ftruncate(fd, 10, function(err){
+      if (err){
+         console.log(err);
+      } 
+      console.log("File truncated successfully.");
+      console.log("Going to read the same file"); 
+      
+      fs.read(fd, buf, 0, buf.length, 0, function(err, bytes){
+         if (err){
+            console.log(err);
+         }
+
+         // Print only read bytes to avoid junk.
+         if(bytes > 0){
+            console.log(buf.slice(0, bytes).toString());
+         }
+
+         // Close the opened file.
+         fs.close(fd, function(err){
+            if (err){
+               console.log(err);
+            } 
+            console.log("File closed successfully.");
+         });
+      });
+   });
+});</pre>
+
+
+
+
+
+<hr>
+
+
+<h3>Чтение из файла</h3>
+<p>Допустим, в одной папке с файлом приложения app.js расположен текстовый файл hello.txt с простейшим текстом, например:</p>
+<pre class="code">Hello Node JS!</pre>
+<p>Для чтения файла в синхронном варианте применяется функция <b>fs.readFileSync()</b>:</p>
+<pre class="code">var fileContent = fs.readFileSync("hello.txt", "utf8");</pre>
+<p>В метод передается путь к файлу относительно файла приложения app.js, а в качестве второго параметра указывается кодировка для получения текстового содержимого файла. На выходе получаем считанный текст.</p>
+<p>Для асинхронного чтения файла применяется функция fs.readFile:</p>
+<pre class="code">fs.readFile("hello.txt", "utf8", function(error,data){ });</pre>
+<p>Первый и второй параметр функции опять же соответственно путь к файлу и кодировка. А в качестве третьего параметра передается функция обратного вызова, которая выполняется после завершения чтения. Первый параметр этой функции хранит информацию об ошибке при наличии, а второй - собственно считанные данные.</p>
+<p>Для чтения файла определим в файле app.js следующий код:</p>
+<pre class="code">
+  var fs = require("fs");
+ 
+// асинхронное чтение
+var fs = require('fs');
+fs.readFile('test.txt', function(err, data){
+  if (err) throw err;
+  var text = data.toString();
+  console.log(text);
+})
+ 
+// синхронное чтение
+console.log("Синхронное чтение файла")
+var fileContent = fs.readFileSync("hello.txt", "utf8");
+console.log(fileContent);
+</pre>
+<p class="red-text italic">И здесь стоит обратить внимание, что несмотря на то, что функция fs.readFile() вызывается первой, но так как она асинхронная, она не блокирует поток выполнения, поэтому ее результат выводится в самом конце.</p>
+<p>Асинхронная функция всегда запускается как метод с callback функцией. </p>
+<p>Обратите внимание на метод toString(), который преобразует коды символовов в символы. Так как данные приходят в бинарной кодировке. Также можно преобразовать данные таким способом: var text=''+data.</p>
+<a href="task3.html">Задача1</a>
+<!-- чтение из файла -->
+<hr>
+<h3>Чтение файла по строкам</h3>
+<p>Если файл разбит на строки, то удобно иметь возможность его читать по строкам, так, чтобы иметь возможность в дальнейшем этими строками манипулировать. Давайте решим задачу следующего рода, вычитаем файл так, чтобы каждая строка была элементом массива. </p>
+<pre class="code">
+var fs = require('fs');
+var array = fs.readFile('test.txt',(err, data) => {
+  if (err) throw err;
+  array = data.toString();
+  array = array.split("\n");
+  console.log(array);
+});
+</pre>
+<p>Итак, задача решена.</p>
+<a href="task3.html#task2">Задача2</a>
+<hr>
+<h3>Открытие файла JSON</h3>
+<p>Если вам необходимо открыть файл JSON, вычитать его и перевести в массив, то используем подобный метод:</p>
+<pre class="code">
+  var fs = require('fs');
+  fs.readFile('3.json', function(err, data){
+    if (err) throw err;
+    var text =JSON.parse(data);
+    console.log(text);
+})
+</pre>
+<a href="task3.html#tфіл3">Задача3</a>
+<hr>
+<h2>Запись в файл</h2>
+<p>Для записи файла в синхронном варианте используется функция fs.writeFileSync(), которая в качестве параметра принимает путь к файлу и записываемые данные:</p>
+<pre class="code">fs.writeFileSync("hello.txt", "Привет ми ми ми!")</pre>
+<p>Также для записи файла можно использовать асинхронную функцию fs.writeFile(), которая принимает те же параметры:</p>
+<pre class="code">fs.writeFile("hello.txt", "Привет МИГ-29!")</pre>
+<p>В качестве вспомогательного параметра в функцию может передаваться функция обратного вызова, которая выполняется после завершения записи:</p>
+<pre class="code">
+  var fs = require("fs");
+ 
+fs.writeFile("hello.txt", "Hello мир!", function(error){
+ 
+                if(error) throw error; // если возникла ошибка
+                console.log("Асинхронная запись файла завершена. Содержимое файла:");
+                var data = fs.readFileSync("hello.txt", "utf8");
+                console.log(data);  // выводим считанные данные
+});</pre>
+<p>Следует отметить, что эти методы полностью перезаписывают файл. Если надо дозаписать файл, то применяются методы fs.appendFile()/fs.appendFileSync():</p>
+<pre class="code">
+var fs = require("fs");
+ 
+fs.appendFileSync("hello.txt", "Привет ми ми ми!");
+ 
+fs.appendFile("hello.txt", "Привет МИД!", function(error){
+                if(error) throw error; // если возникла ошибка
+                 
+                console.log("Запись файла завершена. Содержимое файла:");
+                var data = fs.readFileSync("hello.txt", "utf8");
+                console.log(data);  // выводим считанные данные
+});</pre>
+<p>Что бы узнать размер файла:</p>
+<pre class="code"> 
+const fs = require("fs"); 
+const stats = fs.statSync("myfile.txt");
+const fileSizeInBytes = stats.size;
+//Преобразуем в megabytes
+const fileSizeInMegabytes = fileSizeInBytes / 1000000.0
+
+</pre>
+<p>Можно использовать функцию  в таком формате:</p>
+<pre class="code"> 
+function getFilesizeInBytes(filename) {
+    const stats = fs.statSync(filename);
+    const fileSizeInBytes = stats.size;
+    return fileSizeInBytes
+}
+</pre>
+<a href="task3.html#task4">Задача4</a>
+<hr>
+
+
+
+<h3>Переименование и удаление файлов</h3>
+<p>Манипуляции с файловой системой не заканчиваются чтением и записью в файл. Возможности Node.js значительно шире, так мы можем переименовывать файлы и удалять их. Для переименования выполним код:</p>
+<pre class="code">
+  var fs = require("fs");
+  fs.rename('/tmp/hello.txt', '/tmp/world.txt', function (err) {
+  if (err) throw err;
+  console.log('renamed complete');
+});</pre>
+<p>Это асинхронный способ переименования, также можно воспользоваться синхронной командой: </p>
+<pre class="code">
+  var fs = require("fs");
+  fs.renameSync('hello.txt', 'new.txt');</pre>
+<p>Для удаления файла используем код:</p>
+<pre class="code">
+const fs = require('fs');
+fs.unlink('file_to_del.txt', (err) => {
+  if (err) throw err;
+  console.log('successfully deleted /tmp/hello');
+});</pre>
+
+<a href="task3.html#task5">Задача5</a>
+<hr>
+
+
+<h2>Создание и удаление директории</h2>
+<p>Для создания директории используем модуль fs со следующим кодом:</p>
+<pre class="code">
+  var fs = require('fs');
+  fs.mkdir('mmm2/',function(e){
+    if(e && e.code === 'EEXIST'){
+        //do something with contents
+        console.log(e);
+    } else {
+       console.log('well done');
+    }
+});</pre>
+<p>Для удаления директории</p>
+<pre class="code">
+  var fs = require('fs');
+  fs.rmdir('mmm2',function(e){
+    if(e){
+        console.log('Error');
+    } else {
+        console.log('remove');
+    }
+});</pre>
+<h3>Чтение содержимого каталога</h3>
+<p>Если необходимо вычитать содержимое каталога, то используем код:</p>
+<pre class="code">
+var fs = require('fs');
+fs.readdir('.', (err, files) => {
+  files.forEach(file => {
+    console.log(file);
+  });
+})</pre>
+
+<a href="task3.html#task6">Задача6</a>
+<hr> 
+<h4>Дополнительные материалы</h4>
+<ul class="browser-default">
+  <li><a href="https://metanit.com/web/nodejs/2.1.php">Основы работы с Node.js Модули</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.2.php">Работа с модулями</a></li>
+  <li><a href="https://metanit.com/web/nodejs/2.3.php">Объект global и глобальные переменные</a></li>
+</ul>
+  </div>
+
+
+  <!--Import jQuery before materialize.js-->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>

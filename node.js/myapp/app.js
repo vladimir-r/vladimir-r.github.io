@@ -48,7 +48,13 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+//console.log(app);
 
+ app.post('/123',function (req, res) {
+	 //if(req)console.log(req);
+	// //res.send(req);
+  // // res.send(req.body);
+ });
 
 
 

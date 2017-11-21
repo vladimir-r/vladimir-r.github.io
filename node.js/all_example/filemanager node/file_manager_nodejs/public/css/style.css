@@ -1,0 +1,28 @@
+.folder {
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 3px;
+    margin: 0px;
+    cursor: pointer;
+}
+
+.files {
+    margin: 0px;
+    padding: 3px; 
+}
+
+.path {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#out p i {
+	vertical-align: middle;
+}
+
+#out p.files:hover {
+	background: #f1f1f1;
+}
+#out p.folder:hover {
+	background: #a8ebff;
+}

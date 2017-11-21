@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!--Import materialize.css-->
+  <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <h3 class="col s12">File System</h3>
+      <div class="col s12 divider"></div>
+      <div class="col s12">
+        <div id="out"></div>
+      </div>
+    </div>
+    <div class="row">
+     <div class="col s12 divider"></div>
+   </div>
+   <div class="row">
+    
+    <div class="col s12">
+      <a class="waves-effect waves-light btn modal-trigger" href="#modal1"><i class="material-icons left ">create_new_folder</i>create folder</a>
+      <a class="waves-effect waves-light btn modal-trigger" href="#modal2"><i class="material-icons left ">insert_drive_file</i>create file</a>
+    </div>
+    <div class="col s12">
+      <ul class="browser-default">
+        <li>Для открытия папки - кликните на ней! Для перехода обратно - кликние по элементу пути в хлебных крошках.</li>
+        <li>test - папка для экспириментов!</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div id="modal1" class="modal">
+  <div class="modal-content">
+    <h4>Create folder</h4>
+    <p>Input folder name:</p>
+    <p><input type="text" id="folder-name"></p>
+  </div>
+  <div class="modal-footer">
+    <span class="modal-action modal-close waves-effect waves-red btn-flat ">Cancel</a>
+      <span  class="modal-action modal-close waves-effect waves-green btn-flat" id="create-folder">Create</a>
+      </div>
+    </div>
+    <div id="modal2" class="modal">
+      <div class="modal-content">
+        <h4>Create file</h4>
+        <p>Input file name:</p>
+        <p><input type="text" id="file-name"></p>
+        <p>Input file text</p>
+        <p><input type="text" id="file-text"></p>
+      </div>
+      <div class="modal-footer">
+        <span class="modal-action modal-close waves-effect waves-red btn-flat ">Cancel</a>
+          <span  class="modal-action modal-close waves-effect waves-green btn-flat" id="create-file">Create</a>
+          </div>
+        </div>
+        
+
+
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/materialize.min.js"></script>
+        <script src="js/script.js"></script>
+      </body>
+      <html>

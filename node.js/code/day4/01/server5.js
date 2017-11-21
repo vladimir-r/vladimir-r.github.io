@@ -9,9 +9,22 @@ var mimeTypes = {
     "png": "image/png",
     "js": "text/javascript",
     "css": "text/css"};
-
+function routeLoad(path) {
+        fs.readFile(path, { encoding: 'utf8' }, function(error, file) {
+            if (!error) {
+                response.writeHead(200, { 'Content-Type': 'text/html'});
+                response.write(file);
+                response.end();
+            }
+        });
+    }
 http.createServer(function(req, res) {
+
+	
+	
     var uri = url.parse(req.url).pathname;
+
+	console.log(uri);
     var filename = path.join(process.cwd(), unescape(uri));
     var stats;
 
@@ -23,9 +36,9 @@ http.createServer(function(req, res) {
         res.end();
         return;
     }
-
-
-    if (stats.isFile()) {
+/* if(uri=='/'){var fileStream = fs.createReadStream('index.html');
+        fileStream.pipe(res);}
+ else*/ if (stats.isFile()) {
         // path exists, is a file
         var mimeType = mimeTypes[path.extname(filename).split(".").reverse()[0]];
         res.writeHead(200, {'Content-Type': mimeType} );
@@ -38,7 +51,9 @@ http.createServer(function(req, res) {
         res.write('Index of '+uri+'\n');
         res.write('TODO, show index?\n');
         res.end();
-    } else {
+    } 
+	
+	else {
         // Symbolic link, other?
         // TODO: follow symlinks?  security?
         res.writeHead(500, {'Content-Type': 'text/plain'});
@@ -46,4 +61,4 @@ http.createServer(function(req, res) {
         res.end();
     }
 
-}).listen(3000);
+}).listen(3000,()=>console.log('Server'));

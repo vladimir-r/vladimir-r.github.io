@@ -1,0 +1,27 @@
+{
+  "name": "tz_2",
+  "version": "1.0.0",
+  "description": "$npm install",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luschenko/file_manager_nodejs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/luschenko/file_manager_nodejs/issues"
+  },
+  "homepage": "https://github.com/luschenko/file_manager_nodejs#readme"
+}
