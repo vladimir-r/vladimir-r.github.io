@@ -16,14 +16,14 @@ document.body.onselectstart=function(){return false};
 document.body.onmousedown=function(){return false} ;
 document.body.ondblclick=function(){return false} ;
 document.body.oncontextmenu=function(){return false} ;
-window.onkeydown = function(evt) {
+/*window.onkeydown = function(evt) {
         if(evt.keyCode == 123) return false;
     };
 
     window.onkeypress = function(evt) {
         if(evt.keyCode == 123) return false;
     };
-
+*/
 function Card(img,val){
 		
 		
@@ -74,7 +74,7 @@ for(var i=0;i<12;i++){
 //pole.arrCard.length
 pole.arrCard.shuffle();
 var m=0;
-var ppp=document.getElementById('pole');
+var poleWraper=document.getElementById('pole');
 for(var p=0;p<4;p++){
 	
 	for(var k=0;k<6;k++){
@@ -83,7 +83,7 @@ for(var p=0;p<4;p++){
 		box.style.left=left+'px';
 		box.style.top=t+'px';
 		
-		ppp.append(box);
+		poleWraper.append(box);
 			pole.arrCard[m].draw(box);
 		left=left+130;
 		m++
@@ -97,13 +97,19 @@ for(var p=0;p<4;p++){
 
 var rrr=[];
 
-function logic(){ 
-var a = this.classList.contains('on');
+function addClassOn(){
+	var a = this.classList.contains('on');
 if(a!=true){ 
 
 this.classList.add('on','rotated');
 rrr.push(this.getAttribute('data-val'));
 console.log(rrr);
+
+}
+
+function logic(){ 
+
+addClassOn();
 
 if(rrr.length==2){ 
 
