@@ -97,19 +97,15 @@ for(var p=0;p<4;p++){
 
 var rrr=[];
 
-function addClassOn(){
-	var a = this.classList.contains('on');
+function logic(){ 
+	
+var a = this.classList.contains('on');
 if(a!=true){ 
 
 this.classList.add('on','rotated');
 rrr.push(this.getAttribute('data-val'));
 console.log(rrr);
 
-}
-
-function logic(){ 
-
-addClassOn();
 if(rrr.length==2){ 
 
 if(rrr[0]===rrr[1]){
