@@ -110,7 +110,6 @@ console.log(rrr);
 function logic(){ 
 
 addClassOn();
-
 if(rrr.length==2){ 
 
 if(rrr[0]===rrr[1]){
