@@ -53,7 +53,7 @@ stream.pipe(res)
  
 
  
- var strem=fs.createReadStream('file');
+ //var strem=fs.createReadStream('file');
  
  
  /*
