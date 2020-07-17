@@ -28,6 +28,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 
+ app.post('/123',function (req, res) {
+   //if(req)console.log(req);
+  // //res.send(req);
+  // // res.send(req.body);
+ });
+
 
 
 // catch 404 and forward to error handler
@@ -49,12 +55,6 @@ app.use(function(err, req, res, next) {
 });
 
 //console.log(app);
-
- app.post('/123',function (req, res) {
-	 //if(req)console.log(req);
-	// //res.send(req);
-  // // res.send(req.body);
- });
 
 
 
