@@ -1,0 +1,16 @@
+body {
+background:darkslategray;
+padding: 0;
+margin: 0;
+}
+
+#wrapper {
+	width:50%;
+	margin:0 auto;
+}
+
+
+#game {
+	width: 100%;
+}
+
