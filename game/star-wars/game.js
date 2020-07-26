@@ -2,6 +2,7 @@ var canvas 	= document.getElementById( 'game' );
 var context = canvas.getContext( '2d' );
 
 
+
 var i,ship,Timer;
 var aster=[];
 var fire=[];
@@ -50,6 +51,19 @@ var requestAnimFrame = (function(){
 //начальные установки
 function init() {
 canvas.addEventListener("mousemove",  function(event) {	
+
+var rect = canvas.getBoundingClientRect(), root = document.documentElement;
+
+var mouseX = event.clientX - rect.left - root.scrollLeft;
+var mouseY = event.clientY - rect.top - root.scrollTop;
+			
+var width_canvas = document.getElementById("game").offsetWidth;
+var height_canvas = document.getElementById("game").offsetHeight;
+
+ship.x=mouseX * 600/width_canvas-25;
+ship.y=mouseY * 600/height_canvas-13;
+});
+canvas.addEventListener("touchmove",  function(event) {	
 
 var rect = canvas.getBoundingClientRect(), root = document.documentElement;
 
